@@ -17,9 +17,19 @@ export const getUser = async(req, res)=>{
 }
 
 export const createUser = async(req, res)=>{
+   try {
     const data = req.body;    
     const {rows} = await pool.query("INSERT INTO users (name, email) VALUES ($1, $2) RETURNING *", [data.name, data.email]);   
     return res.send(rows[0]);
+    
+   } catch (error) {
+    console.log(error);
+    if(error?.code ==="23505")
+    {
+        return res.status(409).json({message: "Email already exists"});
+    }
+    return res.status(500).json({message: "Internal server error"});
+   }
 }
 
 
